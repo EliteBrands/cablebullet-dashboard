@@ -124,7 +124,7 @@ function parseCSV(csv){
   var rows=[];
   for(var i=1;i<lines.length;i++){
     var vals=parseCSVLine(lines[i]);
-    if(vals.length>=19&&vals[0].trim()!=='')rows.push(vals);
+    if(vals.length>=22&&vals[0].trim()!=='')rows.push(vals);
   }
   return{headers:headers,rows:rows};
 }
@@ -431,28 +431,27 @@ function loadData(){
     rows.forEach(function(row){
       d.fullDates.push(row[0].trim());
       d.labels.push(shortenDateRange(row[0].trim()));
-      var ms=cleanNum(row[1]);var mq=cleanNum(row[9]);
-      d.metaSpend.push(ms);
-      d.metaImpressions.push(cleanNum(row[2]));
-      d.metaOutboundClicks.push(cleanNum(row[3]));
-      d.metaAddToCarts.push(cleanNum(row[4]));
-      d.metaPurchases.push(cleanNum(row[5]));
-      d.metaValue.push(cleanNum(row[6]));
-      d.metaPageEngagement.push(cleanNum(row[7]));
-      d.metaRoas.push(cleanNum(row[8]));
-      d.metaQuotes.push(mq);
-      d.metaQuotesCpa.push(mq>0?parseFloat((ms/mq).toFixed(2)):0);
-      d.gadsSpend.push(cleanNum(row[10]));
-      d.gadsImpressions.push(cleanNum(row[11]));
-      d.gadsClicks.push(cleanNum(row[12]));
-      d.gadsPurchases.push(cleanNum(row[13]));
-      d.gadsValue.push(cleanNum(row[14]));
-      d.gadsQuotes.push(cleanNum(row[15]));
-      d.gadsPurchRoas.push(cleanNum(row[16]));
-      d.gadsQuotesCpa.push(cleanNum(row[17]));
-      d.totalSpend.push(cleanNum(row[18]));
-      d.shopifyRev.push(cleanNum(row[19]));
-      d.mer.push(cleanNum(row[20]));
+      d.metaSpend.push(cleanNum(row[1]));        // B
+      d.metaImpressions.push(cleanNum(row[2]));  // C
+      d.metaOutboundClicks.push(cleanNum(row[3])); // D
+      d.metaAddToCarts.push(cleanNum(row[4]));   // E
+      d.metaPurchases.push(cleanNum(row[5]));    // F
+      d.metaValue.push(cleanNum(row[6]));        // G
+      d.metaPageEngagement.push(cleanNum(row[7])); // H
+      d.metaRoas.push(cleanNum(row[8]));         // I
+      d.metaQuotes.push(cleanNum(row[9]));       // J
+      d.metaQuotesCpa.push(cleanNum(row[10]));   // K
+      d.gadsSpend.push(cleanNum(row[11]));       // L
+      d.gadsImpressions.push(cleanNum(row[12])); // M
+      d.gadsClicks.push(cleanNum(row[13]));      // N
+      d.gadsPurchases.push(cleanNum(row[14]));   // O
+      d.gadsValue.push(cleanNum(row[15]));       // P
+      d.gadsQuotes.push(cleanNum(row[16]));      // Q
+      d.gadsPurchRoas.push(cleanNum(row[17]));   // R
+      d.gadsQuotesCpa.push(cleanNum(row[18]));   // S
+      d.totalSpend.push(cleanNum(row[19]));      // T
+      d.shopifyRev.push(cleanNum(row[20]));      // U
+      d.mer.push(cleanNum(row[21]));             // V
     });
     allData=d;
     populateDateDropdowns(d.fullDates);
