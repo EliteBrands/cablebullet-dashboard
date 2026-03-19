@@ -236,7 +236,7 @@ function resetFilter(){
   buildDashboard(allData);
 }
 
-var tooltipBase={backgroundColor:'#1a2a3a',titleColor:'#fff',bodyColor:'#ccc',borderColor:'#f59e0b',borderWidth:1,padding:12,cornerRadius:8};
+var tooltipBase={backgroundColor:'#1a2a3a',titleColor:'#fff',bodyColor:'#ccc',borderColor:'#f59e0b',borderWidth:2,padding:24,cornerRadius:12,titleFont:{size:22,weight:'bold'},bodyFont:{size:18},boxPadding:8,boxWidth:20,boxHeight:20};
 
 function toggleExpand(btn,canvasId,chartKey){
   var wrapper=document.getElementById(canvasId+'Wrap');
