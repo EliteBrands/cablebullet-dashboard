@@ -111,12 +111,20 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0f1923;
     <div class="chart-wrapper" id="revenueChartWrap"><canvas id="revenueChart"></canvas></div>
     <div class="stats-row" id="revenue-stats"></div>
   </div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="icon icon-gads">&#127919;</div>Lead Quality (lead campaigns)</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="toggle-group" id="toggles-lead"></div><button class="expand-btn" onclick="toggleExpand(this,'leadChart','lead')">&#x2922; Expand</button></div>
+    </div>
+    <div class="chart-wrapper" id="leadChartWrap"><canvas id="leadChart"></canvas></div>
+    <div class="stats-row" id="lead-stats"></div>
+  </div>
 </div>
 <div class="last-updated" id="lastUpdated"></div>
 <script>
 /* Data source: Published Google Sheet via gviz CSV endpoint */
 const CSV_URL='https://docs.google.com/spreadsheets/d/1_fbpYQ_8Xy1k7dzf_u5pDbgXEOYE_tt1GkTS70G0Ums/gviz/tq?tqx=out:csv';
-var metaChartObj=null,gadsChartObj=null,revenueChartObj=null;
+var metaChartObj=null,gadsChartObj=null,revenueChartObj=null,leadChartObj=null;
 var allData=null;
 
 function parseCSV(csv){
@@ -142,6 +150,9 @@ function parseCSVLine(line){
 }
 
 function cleanNum(s){if(!s)return 0;return parseFloat(s.replace(/[,$%]/g,''))||0}
+function nullableNum(s){if(s===undefined||s===null)return null;var t=String(s).trim();if(t==='')return null;var v=parseFloat(t.replace(/[,$%]/g,''));return isFinite(v)?v:null}
+function ratioOrNull(n,dn){return(n===null||dn===null||!dn)?null:n/dn}
+function sumNN(arr){return arr.reduce(function(a,b){return b===null?a:a+b},0)}
 function shortenDateRange(s){var parts=s.split(' - ');if(parts.length!==2)return s;var a=parts[0].trim().split('/');var b=parts[1].trim().split('/');return a[0]+'/'+a[1]+' - '+b[0]+'/'+b[1]}
 function fmt(n){return Math.round(n).toLocaleString('en-US')}
 function fmtMoney(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
@@ -249,7 +260,7 @@ function toggleExpand(btn,canvasId,chartKey){
   if(n===1)wrapper.classList.add('expanded');else if(n===2)wrapper.classList.add('expanded-2');
   btn.classList.toggle('active',n>0);
   btn.textContent=n===0?'\u2922 Expand':(n===1?'\u2922 Expand More':'\u2922 Collapse');
-  var chartMap={meta:metaChartObj,gads:gadsChartObj,revenue:revenueChartObj};
+  var chartMap={meta:metaChartObj,gads:gadsChartObj,revenue:revenueChartObj,lead:leadChartObj};
   var chart=chartMap[chartKey];
   if(chart){setTimeout(function(){chart.resize()},320)}
 }
@@ -274,6 +285,7 @@ function buildDashboard(d){
   if(metaChartObj){metaChartObj.destroy();metaChartObj=null}
   if(gadsChartObj){gadsChartObj.destroy();gadsChartObj=null}
   if(revenueChartObj){revenueChartObj.destroy();revenueChartObj=null}
+  if(leadChartObj){leadChartObj.destroy();leadChartObj=null}
 
   /* ── Section 1: Meta Ads Performance ── */
   metaChartObj=new Chart(document.getElementById('metaChart'),{
@@ -420,6 +432,55 @@ function buildDashboard(d){
   ]);
 
   document.getElementById('lastUpdated').textContent='Last refreshed: '+new Date().toLocaleString()+' | Data pulled live from Google Sheets ('+labels.length+' weeks shown)';
+
+  /* ── Section 4: Lead Quality ── */
+  var cpqlG=d.leadCost.map(function(c,i){return ratioOrNull(c,d.leadQl[i])});
+  var cpqlC=d.leadCost.map(function(c,i){var q=d.leadQl[i],cap=d.captureRate[i];return(c===null||q===null||cap===null||!q)?null:c*cap/(q*100)});
+  var goal=labels.map(function(){return 334});
+  leadChartObj=new Chart(document.getElementById('leadChart'),{
+    type:'bar',
+    data:{labels:labels,datasets:[
+      {label:'Lead Campaign Cost',data:d.leadCost,backgroundColor:'#ef444460',borderColor:'#ef4444',borderWidth:2,borderRadius:4,yAxisID:'yBar',order:5},
+      {label:'Qualified Leads',data:d.leadQl,type:'line',borderColor:'#22c55e',borderWidth:3,pointRadius:5,tension:.3,spanGaps:false,yAxisID:'y2',order:4},
+      {label:'Cost per QL (Google)',data:cpqlG,type:'line',borderColor:'#f97316',borderWidth:3,pointRadius:5,tension:.3,spanGaps:false,yAxisID:'y1',order:3},
+      {label:'Cost per QL (capture-corrected)',data:cpqlC,type:'line',borderColor:'#f59e0b',borderWidth:3,borderDash:[6,3],pointRadius:5,tension:.3,spanGaps:false,yAxisID:'y1',order:2},
+      {label:'Client goal $334/QL',data:goal,type:'line',borderColor:'#fcd34d',borderWidth:2,borderDash:[2,4],pointRadius:0,yAxisID:'y1',order:1}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{...tooltipBase,callbacks:{label:function(ctx){
+        if(ctx.parsed.y===null||ctx.parsed.y===undefined)return ctx.dataset.label+': no data yet';
+        var l=ctx.dataset.label;
+        if(l==='Qualified Leads')return l+': '+ctx.parsed.y.toLocaleString();
+        return l+': '+fmtMoney(ctx.parsed.y);
+      }}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#7a8fa3',font:{size:11}}},
+        y1:{type:'linear',position:'right',title:{display:true,text:'$ per QL',color:'#f97316',font:{size:12,weight:'bold'}},grid:{drawOnChartArea:false},ticks:{color:'#f97316',callback:function(v){return fmtMoneyShort(v)}}},
+        y2:{type:'linear',position:'left',title:{display:true,text:'Qualified Leads',color:'#22c55e',font:{size:12,weight:'bold'}},grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#22c55e'}},
+        yBar:{type:'linear',display:false,min:0}
+      }
+    }
+  });
+  createToggles('toggles-lead',leadChartObj,['Cost','Qualified Leads','Cost/QL Google','Cost/QL corrected','Goal'],['#ef4444','#22c55e','#f97316','#f59e0b','#fcd34d']);
+  /* Tiles: sum over sum, only weeks where the numerator's partner is present */
+  var qlWeeks=d.leadQl.map(function(q){return q!==null});
+  var costQl=sumNN(d.leadCost.filter(function(_,i){return qlWeeks[i]}));
+  var qlSum=sumNN(d.leadQl);
+  var quoteSum=sumNN(d.leadQuotes),saleSum=sumNN(d.leadSales);
+  var costQuote=sumNN(d.leadCost.filter(function(_,i){return d.leadQuotes[i]!==null}));
+  var costSale=sumNN(d.leadCost.filter(function(_,i){return d.leadSales[i]!==null}));
+  window.__leadTiles={cpql:qlSum?Math.round(costQl/qlSum):null};
+  populateStats('lead-stats',[
+    {label:'Cost per QL (Google)',value:qlSum?fmtMoney(costQl/qlSum):'--'},
+    {label:'Cost per Quote',value:quoteSum?fmtMoney(costQuote/quoteSum):'--'},
+    {label:'Cost per Sale',value:saleSum?fmtMoney(costSale/saleSum):'--'},
+    {label:'Qualified Leads',value:fmt(qlSum)},
+    {label:'Website Calls',value:fmt(sumNN(d.leadCalls))},
+    {label:'Sale Value',value:fmtMoney(sumNN(d.leadSaleValue))},
+    {label:'Client goal (true $)',value:'$334 QL / $311 quote / $682 sale'}
+  ]);
 }
 
 function loadData(){
@@ -435,7 +496,8 @@ function loadData(){
       metaPurchases:[],metaValue:[],metaPageEngagement:[],metaRoas:[],metaQuotes:[],metaQuotesCpa:[],
       gadsSpend:[],gadsImpressions:[],gadsClicks:[],gadsPurchases:[],gadsValue:[],
       gadsQuotes:[],gadsPurchRoas:[],gadsQuotesCpa:[],
-      totalSpend:[],shopifyRev:[],mer:[]
+      totalSpend:[],shopifyRev:[],mer:[],
+      leadCost:[],leadQl:[],leadQuotes:[],leadSales:[],leadSaleValue:[],leadCalls:[],captureRate:[]
     };
     rows.forEach(function(row){
       d.fullDates.push(row[0].trim());
@@ -461,6 +523,13 @@ function loadData(){
       d.totalSpend.push(cleanNum(row[19]));      // T
       d.shopifyRev.push(cleanNum(row[20]));      // U
       d.mer.push(cleanNum(row[21]));             // V
+      d.leadCost.push(nullableNum(row[22]));      // W
+      d.leadQl.push(nullableNum(row[23]));        // X
+      d.leadQuotes.push(nullableNum(row[24]));    // Y
+      d.leadSales.push(nullableNum(row[25]));     // Z
+      d.leadSaleValue.push(nullableNum(row[26])); // AA
+      d.leadCalls.push(nullableNum(row[27]));     // AB
+      d.captureRate.push(nullableNum(row[28]));   // AC
     });
     d.metaRoas28=trailingAvg(d.metaRoas,4);
     d.gadsPurchRoas28=trailingAvg(d.gadsPurchRoas,4);
