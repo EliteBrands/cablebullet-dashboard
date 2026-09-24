@@ -471,9 +471,13 @@ function buildDashboard(d){
   var quoteSum=sumNN(d.leadQuotes),saleSum=sumNN(d.leadSales);
   var costQuote=sumNN(d.leadCost.filter(function(_,i){return d.leadQuotes[i]!==null}));
   var costSale=sumNN(d.leadCost.filter(function(_,i){return d.leadSales[i]!==null}));
-  window.__leadTiles={cpql:qlSum?Math.round(costQl/qlSum):null};
+  /* Capture-corrected: sum(cost) / sum(QL / capture) over weeks where cost, QL>0 and capture are all present */
+  var corrCost=0,corrQl=0;
+  d.leadCost.forEach(function(c,i){var q=d.leadQl[i],cap=d.captureRate[i];if(c!==null&&q!==null&&q>0&&cap!==null&&cap>0){corrCost+=c;corrQl+=q/(cap/100)}});
+  window.__leadTiles={cpql:qlSum?Math.round(costQl/qlSum):null,cpqlC:corrQl?Math.round(corrCost/corrQl):null};
   populateStats('lead-stats',[
     {label:'Cost per QL (Google)',value:qlSum?fmtMoney(costQl/qlSum):'--'},
+    {label:'Cost per QL (capture-corrected)',value:corrQl?fmtMoney(corrCost/corrQl):'--'},
     {label:'Cost per Quote',value:quoteSum?fmtMoney(costQuote/quoteSum):'--'},
     {label:'Cost per Sale',value:saleSum?fmtMoney(costSale/saleSum):'--'},
     {label:'Qualified Leads',value:fmt(qlSum)},

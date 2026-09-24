@@ -24,6 +24,9 @@ setImmediate(() => {
   const stats = els['lead-stats']; assert.ok(stats, 'lead stats rendered');
   // sum over sum across weeks WITH QL: (6000+5000) / (10+0) = 1100
   assert.equal(global.__leadTiles.cpql, 1100);
+  // capture-corrected, sum over sum across weeks with cost, QL>0 AND capture: only week 2
+  // qualifies (week 3 has QL 0, weeks 1 and 4 have no QL): 6000 / (10 / 0.6) = 360
+  assert.equal(global.__leadTiles.cpqlC, 360);
   // Filter sweep: every (from,to) pair builds without throwing.
   for (let a = 0; a < d.fullDates.length; a++) for (let b = a; b < d.fullDates.length; b++) { el('dateFrom').value = String(a); el('dateTo').value = String(b); applyFilter(); }
   console.log('render-sim-leads: PASS');
