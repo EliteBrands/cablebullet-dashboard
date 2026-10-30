@@ -64,13 +64,48 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0f1923;
 .stat-item{text-align:center}
 .stat-item .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#7a8fa3}
 .stat-item .stat-value{font-size:18px;font-weight:700;color:#fff;margin-top:4px}
+.icon-mc{background:#7c3aed}
+.mc-tag{background:#f59e0b20;color:#f59e0b;border:1px solid #f59e0b;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700}
+.mc-banner{display:none;background:#3b1d1d;border:1px solid #ef4444;color:#fca5a5;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px}
+.mc-label{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#7a8fa3;margin:22px 0 10px;font-weight:600}
+.mc-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.mc-tiles>.kpi-card{min-width:0;overflow:hidden}
+.mc-sub{font-size:11px;color:#8899aa;margin-top:6px}
+.mc-spark{position:relative;height:40px;margin-top:8px}
+.mc-note{font-size:12px;color:#7a8fa3;margin-top:10px}
+.mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.mc-card{background:#152232;border:1px solid #253545;border-radius:12px;padding:16px;min-width:0}
+.mc-card .section-header{margin-bottom:10px}
+.mc-card .section-title{font-size:14px}
+.mc-stats-top{margin-top:0;padding-top:0;border-top:0}
+.mc-table-wrap{overflow-x:auto}
+.mc-kw{width:100%;border-collapse:collapse;font-size:13px;min-width:900px}
+.mc-kw th{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#7a8fa3;font-weight:600;text-align:right;padding:8px;border-bottom:1px solid #253545;cursor:pointer;white-space:nowrap;user-select:none}
+.mc-kw td{padding:8px;text-align:right;border-bottom:1px solid #1f3042;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mc-kw th:first-child,.mc-kw td:first-child,.mc-kw th:nth-child(2),.mc-kw td:nth-child(2){text-align:left}
+.mc-kw .mc-grp th{text-align:center;cursor:default;color:#e0e6ed;border-bottom:0}
+.mc-kw td:nth-child(2){color:#8899aa}
+.mc-kw th.sorted{color:#f59e0b}
+.mc-kw th.sorted.desc::after{content:" \25BC"}
+.mc-kw th.sorted.asc::after{content:" \25B2"}
+.mc-kw th:hover{color:#e0e6ed}
+.mc-kw th:focus-visible{outline:2px solid #f59e0b;outline-offset:-2px}
+.mc-swipe{display:none}
+@media(max-width:600px){.mc-swipe{display:block}}
+.mc-kw td:first-child,.mc-kw th:first-child{position:sticky;left:0;background:#152232;z-index:1}
+.mc-banner.mc-info{background:#13283d;border-color:#3b82f6;color:#bfdbfe}
+.mc-question{font-size:15px;color:#fff;font-weight:600;margin:4px 0 12px}
+.mc-question .mc-sub{font-weight:400;font-size:12px;margin-left:8px}
+.mc-tiles .kpi-change{cursor:default}
+@media(max-width:900px){#mc-section{padding:16px}.mc-card{padding:12px}}
+@media(max-width:900px){.mc-tiles{grid-template-columns:repeat(2,1fr)}.mc-grid{grid-template-columns:1fr}}
 @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr)}.dashboard-header{flex-direction:column;gap:12px;text-align:center}.dashboard-container{padding:16px}.date-filter-bar{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
 <body>
 <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div class="loading-text">Loading data from Google Sheets...</div></div>
 <div class="dashboard-header">
-  <div><h1><span>Cable Bullet</span> &mdash; Weekly Performance Dashboard</h1><div class="subtitle" id="dateSubtitle">Meta Ads, Google Ads &amp; Shopify Analytics</div></div>
+  <div><h1><span>Cable Bullet</span>: Weekly Performance Dashboard</h1><div class="subtitle" id="dateSubtitle">Meta Ads, Google Ads &amp; Shopify Analytics</div></div>
   <div class="header-right"><button class="refresh-btn" onclick="loadData()">&#x21BB; Refresh Data</button><div class="header-badge">LIVE REPORT</div></div>
 </div>
 <div class="date-filter-bar">
@@ -103,6 +138,63 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0f1923;
     <div class="chart-wrapper" id="gadsChartWrap"><canvas id="gadsChart"></canvas></div>
     <div class="stats-row" id="gads-stats"></div>
   </div>
+  <div class="section" id="mc-section">
+    <div class="section-header">
+      <div class="section-title"><div class="icon icon-mc">&#128065;</div>Search Railing (Leads Max Clicks): exposure</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span class="mc-tag">Goal: maximum exposure</span><span id="mc-head-share" style="color:#8899aa;font-size:13px"></span></div>
+    </div>
+    <div class="mc-banner" id="mc-banner"></div>
+    <div id="mc-body">
+      <div class="mc-question">How visible were we on cable railing searches?<span class="mc-sub" id="mc-tiles-week"></span></div>
+      <div class="mc-tiles">
+        <div class="kpi-card"><div class="kpi-label">Shown</div><div class="kpi-value" id="mc-tile-is">--</div><div class="kpi-change" id="mc-tile-is-ch"></div><div class="mc-sub" id="mc-tile-is-range"></div><div class="mc-spark"><canvas id="mc-spark-is" aria-hidden="true"></canvas></div></div>
+        <div class="kpi-card"><div class="kpi-label">Top of page</div><div class="kpi-value" id="mc-tile-top">--</div><div class="kpi-change" id="mc-tile-top-ch"></div><div class="mc-sub" id="mc-tile-top-range"></div><div class="mc-spark"><canvas id="mc-spark-top" aria-hidden="true"></canvas></div></div>
+        <div class="kpi-card"><div class="kpi-label">Very first ad</div><div class="kpi-value" id="mc-tile-abs">--</div><div class="kpi-change" id="mc-tile-abs-ch"></div><div class="mc-sub" id="mc-tile-abs-range"></div><div class="mc-spark"><canvas id="mc-spark-abs" aria-hidden="true"></canvas></div></div>
+        <div class="kpi-card"><div class="kpi-label">Click share</div><div class="kpi-value" id="mc-tile-click">--</div><div class="kpi-change" id="mc-tile-click-ch"></div><div class="mc-sub" id="mc-tile-click-range"></div><div class="mc-spark"><canvas id="mc-spark-click" aria-hidden="true"></canvas></div></div>
+      </div>
+      <div class="mc-note">Shown = of the searches our ad was eligible for, the share where it appeared. Top of page = shown above the search results. Very first ad = shown above all other ads. Click share = share of the clicks we could have got.</div>
+      <div class="mc-label">Traffic: <span id="mc-period-traffic" style="text-transform:none;letter-spacing:0"></span></div>
+      <div class="stats-row mc-stats-top" id="mc-traffic"></div>
+      <div class="mc-label">Results by conversion date: <span id="mc-period-results" style="text-transform:none;letter-spacing:0"></span></div>
+      <div class="stats-row mc-stats-top" id="mc-results"></div>
+      <div class="mc-note">Google splits the credit for each lead or sale across the ads a visitor clicked, so results can be fractions. A sale this campaign helped start can be partly credited to brand search or Shopping. Value and ROAS count online purchases only; quote requests carry no dollar value. <span id="mc-leads-note"></span></div>
+      <div class="mc-label">Trends by week</div>
+      <div class="mc-grid">
+        <div class="mc-card">
+          <div class="section-header"><div class="section-title">Share by week</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><div class="toggle-group" id="toggles-mc-share"></div><button class="expand-btn" onclick="toggleExpand(this,'mcShareChart','mcShare')">&#x2922; Expand</button></div></div>
+          <div class="chart-wrapper" id="mcShareChartWrap"><canvas id="mcShareChart" role="img" aria-label="Line chart: share of searches shown, top of page, very first ad and click share, by week"></canvas></div>
+        </div>
+        <div class="mc-card">
+          <div class="section-header"><div class="section-title">Searches we missed, and why</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><div class="toggle-group" id="toggles-mc-lost"></div><button class="expand-btn" onclick="toggleExpand(this,'mcLostChart','mcLost')">&#x2922; Expand</button></div></div>
+          <div class="chart-wrapper" id="mcLostChartWrap"><canvas id="mcLostChart" role="img" aria-label="Stacked bars by week: searches shown, missed because another ad outranked ours, and missed because the budget ran out"></canvas></div>
+          <div class="mc-note">Blue = we were shown (or got the very first spot). Orange = another ad outranked ours (bid or ad quality). Grey = the daily budget ran out.</div>
+        </div>
+        <div class="mc-card">
+          <div class="section-header"><div class="section-title">Impressions, CTR and cost per click</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><div class="toggle-group" id="toggles-mc-traffic"></div><button class="expand-btn" onclick="toggleExpand(this,'mcTrafficChart','mcTraffic')">&#x2922; Expand</button></div></div>
+          <div class="chart-wrapper" id="mcTrafficChartWrap"><canvas id="mcTrafficChart" role="img" aria-label="Bars and lines by week: impressions, click-through rate and average cost per click"></canvas></div>
+        </div>
+        <div class="mc-card">
+          <div class="section-header"><div class="section-title">Leads, cost per lead and ROAS</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><div class="toggle-group" id="toggles-mc-results"></div><button class="expand-btn" onclick="toggleExpand(this,'mcResultsChart','mcResults')">&#x2922; Expand</button></div></div>
+          <div class="chart-wrapper" id="mcResultsChartWrap"><canvas id="mcResultsChart" role="img" aria-label="Bars and lines by week: leads, cost per lead and return on ad spend"></canvas></div>
+          <div class="mc-note" id="mc-leads-chart-note"></div>
+        </div>
+      </div>
+      <div class="mc-label">Top 10 keywords by clicks. Click a column to re-order them.</div>
+      <div class="mc-note" style="margin:-4px 0 8px">Value and ROAS count online purchases only, so most keywords show $0.</div>
+      <div class="mc-note mc-swipe" style="margin:0 0 8px">Swipe sideways for more columns.</div>
+      <div class="mc-card mc-table-wrap">
+        <table class="mc-kw">
+          <thead>
+            <tr class="mc-grp"><th></th><th></th><th colspan="3">Visibility</th><th colspan="3">Traffic</th><th colspan="4">Results</th></tr>
+            <tr id="mc-kw-head"><th tabindex="0" onclick="mcSortKw(0)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcSortKw(0)}">Keyword</th><th tabindex="0" onclick="mcSortKw(1)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcSortKw(1)}">Match</th><th tabindex="0" onclick="mcSortKw(2)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcSortKw(2)}">Shown</th><th tabindex="0" onclick="mcSortKw(3)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcSortKw(3)}">Very first ad</th><th tabindex="0" onclick="mcSortKw(4)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcSortKw(4)}">Click share</th><th tabindex="0" onclick="mcSortKw(5)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcSortKw(5)}">Clicks</th><th tabindex="0" onclick="mcSortKw(6)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcSortKw(6)}">CTR</th><th tabindex="0" onclick="mcSortKw(7)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcSortKw(7)}">Avg CPC</th><th tabindex="0" onclick="mcSortKw(8)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcSortKw(8)}" id="mc-kw-leads-h">Leads</th><th tabindex="0" onclick="mcSortKw(9)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcSortKw(9)}">Cost / lead</th><th tabindex="0" onclick="mcSortKw(10)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcSortKw(10)}">Value</th><th tabindex="0" onclick="mcSortKw(11)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcSortKw(11)}">ROAS</th></tr>
+          </thead>
+          <tbody id="mc-kw-body"></tbody>
+        </table>
+      </div>
+      <div class="mc-label">By device</div>
+      <div class="mc-card"><div class="chart-wrapper" style="height:200px"><canvas id="mcDevChart" role="img" aria-label="Bars by device: share shown and share as very first ad on phone, desktop and tablet"></canvas></div></div>
+    </div>
+  </div>
   <div class="section">
     <div class="section-header">
       <div class="section-title"><div class="icon icon-revenue">&#128176;</div>Revenue &amp; ROAS Overview</div>
@@ -122,10 +214,237 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0f1923;
 </div>
 <div class="last-updated" id="lastUpdated"></div>
 <script>
-/* Data source: Published Google Sheet via gviz CSV endpoint */
-const CSV_URL='https://docs.google.com/spreadsheets/d/1_fbpYQ_8Xy1k7dzf_u5pDbgXEOYE_tt1GkTS70G0Ums/gviz/tq?tqx=out:csv';
+/* Data source: Published Google Sheet via gviz CSV endpoint. gid=0 is the main weekly tab. gviz falls back to the FIRST tab for an unknown gid, so never delete, recreate or reorder that tab. */
+var SHEET_BASE='https://docs.google.com/spreadsheets/d/1_fbpYQ_8Xy1k7dzf_u5pDbgXEOYE_tt1GkTS70G0Ums/gviz/tq?tqx=out:csv';
+var CSV_URL=SHEET_BASE+'&gid=0';
 var metaChartObj=null,gadsChartObj=null,revenueChartObj=null,leadChartObj=null;
 var allData=null;
+
+/* Max Clicks exposure tabs on the same sheet, written weekly by the exposure-sheet.mjs script.
+   tools/render-sim-exposure.cjs asserts these constants still match that writer's config. */
+var EXPO_TABS={weekly:'MaxClicks Weekly',keywords:'MaxClicks Keywords',devices:'MaxClicks Devices'};
+var EXPO_HEADERS={
+  weekly:['Date','spend','impressions','clicks','search is','search top is','search abs top is','click share','lost is budget','lost is rank','abs top lost budget','abs top lost rank','leads','purchases','purchase value','budget per day'],
+  keywords:['Date','keyword','match type','impressions','clicks','cost','search is','search abs top is','click share','leads','purchase value'],
+  devices:['Date','device','impressions','clicks','cost','search is','search abs top is']
+};
+var MC_LEADS_FROM='2026-08-11',MC_KW_BASIS='conversion_date';
+var MC_KEYS=['spend','impr','clicks','is','topIs','absIs','clickShare','lostBudget','lostRank','absLostBudget','absLostRank','leads','purchases','value','budget'];
+var MC_FETCH_MS=10000;
+var MC_MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function EXPO_URL(tab){return SHEET_BASE+'&headers=1&sheet='+encodeURIComponent(tab)}
+/* One tab: its text, or null on any error or after MC_FETCH_MS. Never rejects, never hangs. */
+function mcFetchTab(tab){return new Promise(function(res){var done=false;function fin(v){if(!done){done=true;res(v)}}
+  setTimeout(function(){fin(null)},MC_FETCH_MS);
+  fetch(EXPO_URL(tab)).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(fin,function(){fin(null)})})}
+/* IS and click share over rows: sum(base) / sum(base / share), base = impressions or clicks. 0 / blank shares skipped. */
+function weightedShare(shares,weights){var n=0,dn=0;shares.forEach(function(s,i){var w=weights[i];if(s!==null&&s!==undefined&&s>0&&w>0){n+=w;dn+=w/s}});return dn>0?n/dn:null}
+/* Top / first-ad share over rows: sum(share x eligible) / sum(eligible), eligible = impressions / IS. A real 0 counts. */
+function mcByElig(shares,elig){var n=0,dn=0;shares.forEach(function(s,i){var e=elig[i];if(s!==null&&s!==undefined&&e!==null&&e>0){n+=s*e;dn+=e}});return dn>0?n/dn:null}
+/* Cost per X over weeks where both cost and count are present; null when the count sums to 0. */
+function costPer(cost,count){var c=0,n=0;cost.forEach(function(v,i){var k=count[i];if(v!==null&&k!==null&&k!==undefined){c+=v;n+=k}});return n>0?c/n:null}
+function latestIdx(arr){for(var i=arr.length-1;i>=0;i--){if(arr[i]!==null&&arr[i]!==undefined)return i}return -1}
+function parseTab(csv,headers){
+  var lines=String(csv||'').trim().split(/\r?\n/);
+  if(!lines[0]||parseCSVLine(lines[0]).join('|')!==headers.join('|'))return null;
+  return lines.slice(1).map(parseCSVLine).filter(function(v){return v[0]&&v[0].trim()!==''});
+}
+var mcShareChartObj=null,mcLostChartObj=null,mcTrafficChartObj=null,mcResultsChartObj=null,mcDevChartObj=null,mcSparkObjs=[];
+/* Google reports "<10%" as 0.0999 and ">90%" as 0.9001: show them as bounds, not as exact values. */
+function mcPct(v){if(v===null||v===undefined)return '--';if(Math.abs(v-0.0999)<1e-6)return '<10%';if(Math.abs(v-0.9001)<1e-6)return '>90%';return(v*100).toFixed(0)+'%'}
+function mcMoney(v){if(v===null||v===undefined||!isFinite(v))return '--';if(v===0)return '$0';return Math.abs(v)>=100?'$'+Math.round(v).toLocaleString('en-US'):fmtMoney(v)}
+function mcNum(v){var r=Math.round(v*10)/10;return r%1===0?fmt(r):r.toFixed(1)}
+function mcDelta(cur,prev){var p=Math.round((cur-prev)*1000)/10;if(p===0)return '0.0 points vs';return(p>0?'▲ +':'▼ ')+p.toFixed(1)+' points vs'}
+function mcDay(mmddyy){var p=String(mmddyy).trim().split('/');return parseInt(p[1],10)+' '+MC_MON[parseInt(p[0],10)-1]}
+function mcWeek(full){var p=String(full).trim().split(' - '),a=p[0].split('/'),b=p[1].split('/');return parseInt(a[1],10)+(a[0]===b[0]?'':' '+MC_MON[parseInt(a[0],10)-1])+' to '+mcDay(p[1])}
+function mcDayIso(iso){var p=iso.split('-');return parseInt(p[2],10)+' '+MC_MON[parseInt(p[1],10)-1]}
+function mcSet(id,t){var el=document.getElementById(id);if(el)el.textContent=t}
+function mcShow(on){var b=document.getElementById('mc-body');if(b)b.style.display=on?'':'none'}
+function mcBanner(msg,info){var el=document.getElementById('mc-banner');if(el){el.textContent=msg||'';el.className='mc-banner'+(info?' mc-info':'');el.style.display=msg?'block':'none'}}
+function mcPer(n,dn){return n.map(function(v,i){var b=dn[i];return v===null||b===null||!b?null:v/b})}
+function mcX100(a){return a.map(function(v){return v===null?null:v*100})}
+function mcIso(label){var p=String(label).trim().split(' - ')[0].split('/');return '20'+p[2]+'-'+p[0]+'-'+p[1]}
+function mcDestroy(){
+  [mcShareChartObj,mcLostChartObj,mcTrafficChartObj,mcResultsChartObj,mcDevChartObj].concat(mcSparkObjs).forEach(function(c){if(c)c.destroy()});
+  mcShareChartObj=mcLostChartObj=mcTrafficChartObj=mcResultsChartObj=mcDevChartObj=null;mcSparkObjs=[];
+}
+function mcTip(){return{...tooltipBase,padding:10,titleFont:{size:13,weight:"bold"},bodyFont:{size:12},boxWidth:10,boxHeight:10,boxPadding:4}}
+function mcLine(label,data,color,axis,extra){var o={label:label,data:data,type:'line',borderColor:color,backgroundColor:color+'20',borderWidth:3,pointRadius:4,pointHoverRadius:7,pointBackgroundColor:color,pointBorderColor:'#fff',pointBorderWidth:2,tension:.3,spanGaps:false,yAxisID:axis};for(var k in extra)o[k]=extra[k];return o}
+/* Phone (<600px): the right-hand axes are hidden, the tooltip carries the values. */
+function mcOpts(scales,fmtFn){
+  if(window.innerWidth<600)['y1','y2'].forEach(function(k){if(scales[k]){scales[k].ticks.display=false;scales[k].title={display:false}}});
+  return{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...mcTip(),callbacks:{label:function(ctx){if(ctx.parsed.y===null||ctx.parsed.y===undefined)return ctx.dataset.label+': no data';return ctx.dataset.label+': '+fmtFn(ctx.dataset.label,ctx.parsed.y)}}}},scales:scales}}
+var MC_X={grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#7a8fa3',font:{size:11}}};
+var MC_MSG={
+  loading:'Loading the Search Railing exposure figures.',
+  unavailable:'Search Railing exposure could not load. Click Refresh Data to try again. The rest of this report is not affected.',
+  drift:'Search Railing exposure is being updated and will be back shortly. The rest of this report is not affected.'
+};
+/* Any drawing error stays inside this section: the other cards and the page alert are never touched. */
+function mcBuildSafe(d){
+  try{buildMaxClicks(d)}catch(e){mcDestroy();mcShow(false);mcSet('mc-head-share','');mcBanner('The Search Railing exposure section could not be shown. The rest of this report is not affected.')}
+}
+function buildMaxClicks(d){
+  mcDestroy();mcSet('mc-head-share','');
+  if(d.mcStatus!=='ok'){mcShow(false);mcBanner(MC_MSG[d.mcStatus]||MC_MSG.unavailable,d.mcStatus==='loading'||d.mcStatus==='drift');return}
+  var m=d.mc;
+  if(!m.spend.some(function(v){return v!==null})){mcBanner('The Search Railing campaign has no data in the weeks selected. Choose weeks from 26 Jul onward.',true);mcShow(false);return}
+  mcBanner('');mcShow(true);
+  var fi=-1;for(var j=0;j<m.spend.length;j++){if(m.spend[j]!==null){fi=j;break}}
+  var ls=latestIdx(m.spend),nW=m.spend.filter(function(v){return v!==null}).length;
+  var periodShort=mcDay(d.fullDates[fi].split(' - ')[0])+' to '+mcDay(d.fullDates[ls].split(' - ')[1]);
+  var period=periodShort+' ('+nW+' week'+(nW===1?'':'s')+')';
+  mcSet('mc-period-traffic',period);mcSet('mc-period-results',period);
+  /* Header: share of Google Ads spend over the weeks that have Max Clicks data */
+  var mcSp=0,gSp=0;m.spend.forEach(function(v,i){if(v!==null){mcSp+=v;gSp+=d.gadsSpend[i]||0}});
+  mcSet('mc-head-share',gSp?Math.round(mcSp/gSp*100)+'% of Google Ads spend, '+periodShort:'');
+  /* Tiles: big number = latest week with data; sub-line = the whole period */
+  var li=latestIdx(m.is),pi=-1;for(var i=li-1;i>=0;i--){if(m.is[i]!==null){pi=i;break}}
+  mcSet('mc-tiles-week',li<0?'':'Week of '+mcWeek(d.fullDates[li])+(li<m.is.length-1?' (the newest week is still being added)':''));
+  var elig=m.impr.map(function(v,i){var s=m.is[i];return s===null||!s?null:v/s});
+  var tiles=[['is',m.is,'#3b82f6'],['top',m.topIs,'#a855f7'],['abs',m.absIs,'#f59e0b'],['click',m.clickShare,'#22c55e']];
+  tiles.forEach(function(t){
+    var cur=li<0?null:t[1][li],prev=pi<0?null:t[1][pi];
+    mcSet('mc-tile-'+t[0],mcPct(cur));
+    var ch=document.getElementById('mc-tile-'+t[0]+'-ch');
+    if(ch){if(cur!==null&&prev!==null){var txt=mcDelta(cur,prev);ch.textContent=txt+' '+mcWeek(d.fullDates[pi]);ch.className='kpi-change'+(txt.charAt(0)==='▼'?' down':txt.charAt(0)==='▲'?' up':'')}else{ch.textContent='';ch.className='kpi-change'}}
+    var rng=t[0]==='click'?weightedShare(t[1],m.clicks):mcByElig(t[1],elig);
+    mcSet('mc-tile-'+t[0]+'-range','Average '+periodShort+': '+mcPct(rng));
+    var cv=document.getElementById('mc-spark-'+t[0]);
+    if(cv)mcSparkObjs.push(new Chart(cv,{type:'line',data:{labels:d.labels.slice(fi),datasets:[{data:mcX100(t[1].slice(fi)),borderColor:t[2],backgroundColor:t[2]+'30',fill:true,borderWidth:2,pointRadius:0,tension:.3,spanGaps:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false,min:0,max:100}}}}));
+  });
+  /* Traffic + results rows: sums and ratios of sums over the period */
+  var bI=latestIdx(m.budget),impr=sumNN(m.impr),clicks=sumNN(m.clicks);
+  populateStats('mc-traffic',[
+    {label:'Spend',value:mcMoney(mcSp)},
+    {label:'Spend per day (latest week)',value:mcMoney(m.spend[ls]/7)+(bI<0||bI!==ls?'':' of '+mcMoney(m.budget[bI])+' budget')},
+    {label:'Impressions',value:fmt(impr)},
+    {label:'Clicks',value:fmt(clicks)},
+    {label:'Click-through rate (CTR)',value:impr?fmtPct(clicks/impr*100):'--'},
+    {label:'Avg cost per click',value:clicks?fmtMoney(mcSp/clicks):'--'}
+  ]);
+  var leadsAny=m.leads.some(function(v){return v!==null}),cpl=costPer(m.spend,m.leads),cpp=costPer(m.spend,m.purchases);
+  var vS=0,sS=0;m.value.forEach(function(v,i){if(v!==null&&m.spend[i]!==null){vS+=v;sS+=m.spend[i]}});
+  populateStats('mc-results',[
+    {label:'Leads',value:leadsAny?mcNum(sumNN(m.leads)):'--'},
+    {label:'Cost per lead',value:mcMoney(cpl)},
+    {label:'Purchases',value:mcNum(sumNN(m.purchases))},
+    {label:'Cost per purchase',value:mcMoney(cpp)},
+    {label:'Purchase value',value:mcMoney(sumNN(m.value))},
+    {label:'Return (ROAS): $ back per $1',value:sS?(vS/sS).toFixed(2)+'x':'--'}
+  ]);
+  var early=mcIso(d.fullDates[fi])<MC_LEADS_FROM;
+  mcSet('mc-leads-note',early?'Leads are counted from '+mcDayIso(MC_LEADS_FROM)+', when the quote-request tracking started. Cost per lead uses spend from that date on.':'');
+  mcSet('mc-leads-chart-note',early?'Leads tracked from '+mcDayIso(MC_LEADS_FROM)+'. Earlier weeks show no leads because they were not tracked yet.':'');
+  /* Charts start at the first week with data */
+  var cm={};MC_KEYS.forEach(function(k){cm[k]=m[k].slice(fi)});
+  var L=d.labels.slice(fi),pctFmt=function(l,v){return v.toFixed(1)+'%'};
+  mcShareChartObj=new Chart(document.getElementById('mcShareChart'),{type:'line',data:{labels:L,datasets:[
+    mcLine('Shown',mcX100(cm.is),'#3b82f6','y'),mcLine('Top of page',mcX100(cm.topIs),'#a855f7','y'),
+    mcLine('Very first ad',mcX100(cm.absIs),'#f59e0b','y'),mcLine('Click share',mcX100(cm.clickShare),'#22c55e','y',{borderDash:[6,3]})
+  ]},options:mcOpts({x:MC_X,y:{min:0,max:100,grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#7a8fa3',callback:function(v){return v+'%'}}}},pctFmt)});
+  createToggles('toggles-mc-share',mcShareChartObj,['Shown','Top of page','Very first ad','Click share'],['#3b82f6','#a855f7','#f59e0b','#22c55e']);
+  /* Missed searches: one stack at a time (all searches, or the very first ad spot), switched by 2 buttons */
+  var bar=function(label,data,color,hidden){return{label:label,data:mcX100(data),backgroundColor:color,borderColor:color,borderWidth:1,stack:'s',yAxisID:'y',hidden:hidden}};
+  mcLostChartObj=new Chart(document.getElementById('mcLostChart'),{type:'bar',data:{labels:L,datasets:[
+    bar('Shown',cm.is,'#3b82f6',false),bar('Missed: outranked (bid or ad quality)',cm.lostRank,'#f97316',false),bar('Missed: budget ran out',cm.lostBudget,'#64748b',false),
+    bar('Very first ad',cm.absIs,'#3b82f6',true),bar('Not first: outranked (bid or ad quality)',cm.absLostRank,'#f97316',true),bar('Not first: budget ran out',cm.absLostBudget,'#64748b',true)
+  ]},options:mcOpts({x:{stacked:true,grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#7a8fa3',font:{size:11}}},y:{stacked:true,min:0,max:100,grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#7a8fa3',callback:function(v){return v+'%'}}}},pctFmt)});
+  var tg=document.getElementById('toggles-mc-lost');
+  if(tg){tg.textContent='';[['all','All searches','#3b82f6'],['abs','Very first ad spot','#f59e0b']].forEach(function(b){
+    var btn=document.createElement('button');btn.className='toggle-btn'+(b[0]==='all'?' active':'');btn.style.borderColor=b[2];btn.setAttribute('data-mode',b[0]);btn.setAttribute('aria-pressed',b[0]==='all'?'true':'false');
+    btn.appendChild(document.createTextNode(b[1]));btn.addEventListener('click',function(){mcLostMode(b[0])});tg.appendChild(btn)})}
+  var ctr=mcX100(mcPer(cm.clicks,cm.impr)),cpc=mcPer(cm.spend,cm.clicks);
+  mcTrafficChartObj=new Chart(document.getElementById('mcTrafficChart'),{type:'bar',data:{labels:L,datasets:[
+    {label:'Impressions',data:cm.impr,backgroundColor:'#3b82f650',borderColor:'#3b82f6',borderWidth:2,borderRadius:4,yAxisID:'y',order:3},
+    mcLine('Click-through rate',ctr,'#ef4444','y1',{order:2}),mcLine('Avg cost per click',cpc,'#e0e6ed','y2',{borderDash:[4,3],order:1})
+  ]},options:mcOpts({x:MC_X,
+    y:{position:'left',min:0,title:{display:true,text:'Impressions',color:'#3b82f6'},grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#3b82f6',callback:function(v){return(v/1000).toFixed(0)+'K'}}},
+    y1:{position:'right',min:0,title:{display:true,text:'CTR',color:'#ef4444'},grid:{drawOnChartArea:false},ticks:{color:'#ef4444',callback:function(v){return v+'%'}}},
+    y2:{position:'right',min:0,title:{display:true,text:'Cost per click',color:'#e0e6ed'},grid:{drawOnChartArea:false},ticks:{color:'#e0e6ed',callback:function(v){return '$'+v}}}
+  },function(l,v){return l==='Click-through rate'?v.toFixed(1)+'%':l==='Avg cost per click'?fmtMoney(v):v.toLocaleString()})});
+  createToggles('toggles-mc-traffic',mcTrafficChartObj,['Impressions','CTR','Cost per click'],['#3b82f6','#ef4444','#e0e6ed']);
+  var cplW=cm.spend.map(function(s,i){var n=cm.leads[i];return s===null||n===null||!n?null:s/n});
+  var roasW=cm.spend.map(function(s,i){var v=cm.value[i];return s===null||v===null||!s?null:v/s});
+  mcResultsChartObj=new Chart(document.getElementById('mcResultsChart'),{type:'bar',data:{labels:L,datasets:[
+    {label:'Leads',data:cm.leads,backgroundColor:'#22c55e50',borderColor:'#22c55e',borderWidth:2,borderRadius:4,yAxisID:'y',order:3},
+    mcLine('Cost per lead',cplW,'#a855f7','y1',{order:2}),mcLine('Return (ROAS)',roasW,'#f59e0b','y2',{borderDash:[6,3],order:1})
+  ]},options:mcOpts({x:MC_X,
+    y:{position:'left',min:0,title:{display:true,text:'Leads',color:'#22c55e'},grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#22c55e'}},
+    y1:{position:'right',min:0,title:{display:true,text:'Cost per lead',color:'#a855f7'},grid:{drawOnChartArea:false},ticks:{color:'#a855f7',callback:function(v){return fmtMoneyShort(v)}}},
+    y2:{position:'right',min:0,title:{display:true,text:'ROAS',color:'#f59e0b'},grid:{drawOnChartArea:false},ticks:{color:'#f59e0b',callback:function(v){return v.toFixed(1)+'x'}}}
+  },function(l,v){return l==='Return (ROAS)'?v.toFixed(2)+'x':l==='Cost per lead'?mcMoney(v):mcNum(v)})});
+  createToggles('toggles-mc-results',mcResultsChartObj,['Leads','Cost per lead','ROAS'],['#22c55e','#a855f7','#f59e0b']);
+  /* Keyword table: top 10 by clicks over the period */
+  mcSet('mc-kw-leads-h',MC_KW_BASIS==='click_date'?'Leads (click date)':'Leads');
+  mcKwRows=mcKwAgg(d.mcKw);mcKwSort={col:5,dir:-1};mcRenderKw();
+  /* Device chart */
+  var devN=['Phone','Desktop','Tablet'],dv={};devN.forEach(function(n){dv[n]={impr:0,is:[],isW:[],abs:[],e:[]}});
+  d.mcDev.forEach(function(wk){wk.forEach(function(r){if(!Object.prototype.hasOwnProperty.call(dv,r.dev))return;var o=dv[r.dev];o.impr+=r.impr;o.is.push(r.is);o.isW.push(r.impr);o.abs.push(r.abs);o.e.push(r.is?r.impr/r.is:null)})});
+  var dvShown=devN.map(function(n){var s=weightedShare(dv[n].is,dv[n].isW);return s===null?null:s*100}),dvAbs=devN.map(function(n){var s=mcByElig(dv[n].abs,dv[n].e);return s===null?null:s*100});
+  mcDevChartObj=new Chart(document.getElementById('mcDevChart'),{type:'bar',data:{labels:devN,datasets:[
+    {label:'Shown',data:dvShown,backgroundColor:'#3b82f6',borderRadius:4},{label:'Very first ad',data:dvAbs,backgroundColor:'#f59e0b',borderRadius:4}
+  ]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#e0e6ed'}},tooltip:{...mcTip(),callbacks:{label:function(ctx){return ctx.dataset.label+': '+(ctx.parsed.x===null?'no data':ctx.parsed.x.toFixed(1)+'%')+' ('+fmt(dv[devN[ctx.dataIndex]].impr)+' impressions)'}}}},
+    scales:{x:{min:0,max:100,grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#7a8fa3',callback:function(v){return v+'%'}}},y:{grid:{display:false},ticks:{color:'#e0e6ed'}}}}});
+}
+function mcLostMode(mode){
+  if(!mcLostChartObj)return;
+  [0,1,2,3,4,5].forEach(function(i){mcLostChartObj.setDatasetVisibility(i,mode==='abs'?i>2:i<3)});mcLostChartObj.update();
+  var tg=document.getElementById('toggles-mc-lost');
+  if(tg&&tg.children)Array.prototype.forEach.call(tg.children,function(b){var on=!!(b.getAttribute&&b.getAttribute('data-mode')===mode);b.className='toggle-btn'+(on?' active':'');if(b.setAttribute)b.setAttribute('aria-pressed',on?'true':'false')});
+}
+var mcKwRows=[],mcKwSort={col:5,dir:-1};
+function mcKwAgg(weeks){
+  var by={};
+  weeks.forEach(function(wk){wk.forEach(function(r){
+    var k=r.kw+'|'+r.mt,o=Object.prototype.hasOwnProperty.call(by,k)?by[k]:(by[k]={kw:r.kw,mt:r.mt,impr:0,clicks:0,cost:0,leadCost:0,leads:null,value:0,is:[],isW:[],abs:[],e:[],cs:[],csW:[]});
+    o.impr+=r.impr;o.clicks+=r.clicks;o.cost+=r.cost;o.value+=r.value||0;
+    if(r.leads!==null){o.leads=(o.leads||0)+r.leads;o.leadCost+=r.cost}
+    o.is.push(r.is);o.isW.push(r.impr);o.abs.push(r.abs);o.e.push(r.is?r.impr/r.is:null);o.cs.push(r.cs);o.csW.push(r.clicks);
+  })});
+  return Object.keys(by).map(function(k){return by[k]}).sort(function(a,b){return b.clicks-a.clicks||b.cost-a.cost}).slice(0,10).map(function(o){
+    var sh=weightedShare(o.is,o.isW),ab=mcByElig(o.abs,o.e),cs=weightedShare(o.cs,o.csW);
+    var ctr=o.impr?o.clicks/o.impr*100:null,cpc=o.clicks?o.cost/o.clicks:null,cpl=o.leads?o.leadCost/o.leads:null,roas=o.cost?o.value/o.cost:null;
+    return{num:[o.kw,o.mt,sh,ab,cs,o.clicks,ctr,cpc,o.leads,cpl,o.value,roas],
+      txt:[o.kw,o.mt,mcPct(sh),mcPct(ab),mcPct(cs),fmt(o.clicks),ctr===null?'--':fmtPct(ctr),cpc===null?'--':fmtMoney(cpc),o.leads===null?'--':mcNum(o.leads),mcMoney(cpl),mcMoney(o.value),roas===null?'--':roas===0?'0x':roas.toFixed(2)+'x']};
+  });
+}
+function mcSortKw(col){
+  mcKwSort=mcKwSort.col===col?{col:col,dir:-mcKwSort.dir}:{col:col,dir:col<2?1:-1};
+  mcRenderKw();
+}
+function mcRenderKw(){
+  var body=document.getElementById('mc-kw-body');if(!body)return;
+  var c=mcKwSort.col,dir=mcKwSort.dir;
+  var rows=mcKwRows.slice().sort(function(a,b){var x=a.num[c],y=b.num[c];
+    if(typeof x==='string'||typeof y==='string')return dir*String(x).localeCompare(String(y));
+    if(x===null&&y===null)return 0;if(x===null)return 1;if(y===null)return -1;return dir*(x-y)});
+  body.replaceChildren();
+  rows.forEach(function(r){var tr=document.createElement('tr');r.txt.forEach(function(t){var td=document.createElement('td');td.textContent=t;tr.appendChild(td)});body.appendChild(tr)});
+  var head=document.getElementById('mc-kw-head');
+  if(head&&head.children)Array.prototype.forEach.call(head.children,function(th,i){th.className=i===c?'sorted '+(dir>0?'asc':'desc'):'';if(th.setAttribute)th.setAttribute('aria-sort',i===c?(dir>0?'ascending':'descending'):'none')});
+}
+/* Empty Max Clicks arrays aligned to the main weeks, with a status. */
+function mcEmpty(d,status){
+  d.mc={};MC_KEYS.forEach(function(k){d.mc[k]=d.fullDates.map(function(){return null})});
+  d.mcKw=d.fullDates.map(function(){return[]});d.mcDev=d.fullDates.map(function(){return[]});
+  d.mcStatus=status;
+}
+function applyExposure(d,tx){
+  mcEmpty(d,'unavailable');
+  if(!tx.weekly||!tx.keywords||!tx.devices)return;
+  /* gviz answers a missing tab with the main tab: that is "unavailable", not a layout change */
+  if([tx.weekly,tx.keywords,tx.devices].some(function(t){return /^"?Date"?,"?meta spend/.test(String(t).trim())}))return;
+  var w=parseTab(tx.weekly,EXPO_HEADERS.weekly),k=parseTab(tx.keywords,EXPO_HEADERS.keywords),v=parseTab(tx.devices,EXPO_HEADERS.devices);
+  if(!w||!k||!v){d.mcStatus='drift';return}
+  var idx={};d.fullDates.forEach(function(f,i){idx[f.trim()]=i});
+  var matched=0,bad=false;
+  w.forEach(function(r){var i=idx[r[0].trim()];if(i===undefined)return;matched++;MC_KEYS.forEach(function(key,j){var x=nullableNum(r[j+1]);d.mc[key][i]=x;if(j>=3&&j<=10&&x!==null&&(x<0||x>1))bad=true})});
+  if(bad||(w.length&&!matched)){mcEmpty(d,'drift');return}
+  k.forEach(function(r){var i=idx[r[0].trim()];if(i===undefined)return;d.mcKw[i].push({kw:r[1],mt:r[2],impr:cleanNum(r[3]),clicks:cleanNum(r[4]),cost:cleanNum(r[5]),is:nullableNum(r[6]),abs:nullableNum(r[7]),cs:nullableNum(r[8]),leads:nullableNum(r[9]),value:nullableNum(r[10])})});
+  v.forEach(function(r){var i=idx[r[0].trim()];if(i===undefined)return;d.mcDev[i].push({dev:r[1],impr:cleanNum(r[2]),clicks:cleanNum(r[3]),cost:cleanNum(r[4]),is:nullableNum(r[5]),abs:nullableNum(r[6])})});
+  d.mcStatus='ok';
+}
 
 function parseCSV(csv){
   var lines=csv.trim().split('\n');
@@ -229,13 +548,26 @@ function populateDateDropdowns(fullDates){
   toSel.value=String(fullDates.length-1);fromSel.value='0';
 }
 
+/* allData cut to weeks fromIdx..toIdx; plain objects of arrays (d.mc) are cut too. */
+function sliceData(fromIdx,toIdx){
+  var filtered={};
+  Object.keys(allData).forEach(function(k){
+    var v=allData[k];
+    if(Array.isArray(v))filtered[k]=v.slice(fromIdx,toIdx+1);
+    else if(v&&typeof v==='object'){filtered[k]={};Object.keys(v).forEach(function(j){filtered[k][j]=Array.isArray(v[j])?v[j].slice(fromIdx,toIdx+1):v[j]})}
+    else filtered[k]=v;
+  });
+  return filtered;
+}
+/* The range the cards show now: the last range applyFilter accepted, else all weeks. */
+var mcView=null;
+function currentView(){return mcView&&mcView.t<allData.fullDates.length?sliceData(mcView.f,mcView.t):allData}
 function applyFilter(){
   if(!allData)return;
   var fromIdx=parseInt(document.getElementById('dateFrom').value);
   var toIdx=parseInt(document.getElementById('dateTo').value);
   if(fromIdx>toIdx){document.getElementById('filterInfo').textContent='\u26A0 "From" must be before "To"';return}
-  var keys=Object.keys(allData);var filtered={};
-  keys.forEach(function(k){filtered[k]=Array.isArray(allData[k])?allData[k].slice(fromIdx,toIdx+1):allData[k]});
+  var filtered=sliceData(fromIdx,toIdx);mcView={f:fromIdx,t:toIdx};
   var weeks=toIdx-fromIdx+1;
   document.getElementById('filterInfo').textContent='Showing '+weeks+' week'+(weeks!==1?'s':'')+' of '+allData.fullDates.length+' total';
   buildDashboard(filtered);
@@ -243,6 +575,7 @@ function applyFilter(){
 
 function resetFilter(){
   if(!allData)return;
+  mcView=null;
   document.getElementById('dateFrom').value='0';
   document.getElementById('dateTo').value=String(allData.fullDates.length-1);
   document.getElementById('filterInfo').textContent='Showing all '+allData.fullDates.length+' weeks';
@@ -260,7 +593,7 @@ function toggleExpand(btn,canvasId,chartKey){
   if(n===1)wrapper.classList.add('expanded');else if(n===2)wrapper.classList.add('expanded-2');
   btn.classList.toggle('active',n>0);
   btn.textContent=n===0?'\u2922 Expand':(n===1?'\u2922 Expand More':'\u2922 Collapse');
-  var chartMap={meta:metaChartObj,gads:gadsChartObj,revenue:revenueChartObj,lead:leadChartObj};
+  var chartMap={meta:metaChartObj,gads:gadsChartObj,revenue:revenueChartObj,lead:leadChartObj,mcShare:mcShareChartObj,mcLost:mcLostChartObj,mcTraffic:mcTrafficChartObj,mcResults:mcResultsChartObj};
   var chart=chartMap[chartKey];
   if(chart){setTimeout(function(){chart.resize()},320)}
 }
@@ -485,10 +818,14 @@ function buildDashboard(d){
     {label:'Sale Value',value:fmtMoney(sumNN(d.leadSaleValue))},
     {label:'Client goal (true $)',value:'$334 QL / $311 quote / $682 sale'}
   ]);
+
+  mcBuildSafe(d);
 }
 
 function loadData(){
   document.getElementById('loadingOverlay').classList.remove('hidden');
+  /* Max Clicks tabs load in parallel with the main tab; each resolves to text or null, never hangs. */
+  var tabsP=Promise.all([EXPO_TABS.weekly,EXPO_TABS.keywords,EXPO_TABS.devices].map(mcFetchTab));
   fetch(CSV_URL).then(function(r){
     if(!r.ok)throw new Error('HTTP '+r.status);
     return r.text();
@@ -538,11 +875,18 @@ function loadData(){
     d.metaRoas28=trailingAvg(d.metaRoas,4);
     d.gadsPurchRoas28=trailingAvg(d.gadsPurchRoas,4);
     d.mer28=trailingAvg(d.mer,4);
-    allData=d;
+    /* The page draws now; the Max Clicks section fills in when its own tabs arrive (or shows a note). */
+    mcEmpty(d,'loading');
+    allData=d;mcView=null;
     populateDateDropdowns(d.fullDates);
     document.getElementById('filterInfo').textContent='Showing all '+d.fullDates.length+' weeks';
     buildDashboard(d);
     document.getElementById('loadingOverlay').classList.add('hidden');
+    tabsP.then(function(tx){
+      if(allData!==d)return;   /* a newer Refresh owns the page */
+      try{applyExposure(d,{weekly:tx[0],keywords:tx[1],devices:tx[2]})}catch(e){mcEmpty(d,'unavailable')}
+      mcBuildSafe(currentView());
+    });
   }).catch(function(err){
     document.getElementById('loadingOverlay').classList.add('hidden');
     alert('Failed to load data: '+err.message);
