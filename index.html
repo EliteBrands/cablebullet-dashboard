@@ -91,6 +91,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0f1923;
 .mc-kw th:hover{color:#e0e6ed}
 .mc-kw th:focus-visible{outline:2px solid #f59e0b;outline-offset:-2px}
 .mc-swipe{display:none}
+#mc-section.mc-collapsed #mc-body,#mc-section.mc-collapsed #mc-banner{display:none!important}
+#mc-section.mc-collapsed>.section-header{margin-bottom:0}
 @media(max-width:600px){.mc-swipe{display:block}}
 .mc-kw td:first-child,.mc-kw th:first-child{position:sticky;left:0;background:#152232;z-index:1}
 .mc-banner.mc-info{background:#13283d;border-color:#3b82f6;color:#bfdbfe}
@@ -138,10 +140,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0f1923;
     <div class="chart-wrapper" id="gadsChartWrap"><canvas id="gadsChart"></canvas></div>
     <div class="stats-row" id="gads-stats"></div>
   </div>
-  <div class="section" id="mc-section">
+  <div class="section mc-collapsed" id="mc-section">
     <div class="section-header">
       <div class="section-title"><div class="icon icon-mc">&#128065;</div>Search Railing (Leads Max Clicks): exposure</div>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span class="mc-tag">Goal: maximum exposure</span><span id="mc-head-share" style="color:#8899aa;font-size:13px"></span></div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span class="mc-tag">Goal: maximum exposure</span><span id="mc-head-share" style="color:#8899aa;font-size:13px"></span><button class="expand-btn" id="mc-toggle" aria-expanded="false" type="button" aria-controls="mc-banner mc-body" onclick="mcToggle()">Show details</button></div>
     </div>
     <div class="mc-banner" id="mc-banner"></div>
     <div id="mc-body">
@@ -282,11 +284,11 @@ var MC_MSG={
 };
 /* Any drawing error stays inside this section: the other cards and the page alert are never touched. */
 function mcBuildSafe(d){
-  try{buildMaxClicks(d)}catch(e){mcDestroy();mcShow(false);mcSet('mc-head-share','');mcBanner('The Search Railing exposure section could not be shown. The rest of this report is not affected.')}
+  try{buildMaxClicks(d)}catch(e){mcDestroy();mcShow(false);mcSet('mc-head-share','Not available right now');mcBanner('The Search Railing exposure section could not be shown. The rest of this report is not affected.')}
 }
 function buildMaxClicks(d){
   mcDestroy();mcSet('mc-head-share','');
-  if(d.mcStatus!=='ok'){mcShow(false);mcBanner(MC_MSG[d.mcStatus]||MC_MSG.unavailable,d.mcStatus==='loading'||d.mcStatus==='drift');return}
+  if(d.mcStatus!=='ok'){mcSet('mc-head-share',d.mcStatus==='loading'?'Loading':'Not available right now');mcShow(false);mcBanner(MC_MSG[d.mcStatus]||MC_MSG.unavailable,d.mcStatus==='loading'||d.mcStatus==='drift');return}
   var m=d.mc;
   if(!m.spend.some(function(v){return v!==null})){mcBanner('The Search Railing campaign has no data in the weeks selected. Choose weeks from 26 Jul onward.',true);mcShow(false);return}
   mcBanner('');mcShow(true);
@@ -386,6 +388,16 @@ function buildMaxClicks(d){
     {label:'Shown',data:dvShown,backgroundColor:'#3b82f6',borderRadius:4},{label:'Very first ad',data:dvAbs,backgroundColor:'#f59e0b',borderRadius:4}
   ]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#e0e6ed'}},tooltip:{...mcTip(),callbacks:{label:function(ctx){return ctx.dataset.label+': '+(ctx.parsed.x===null?'no data':ctx.parsed.x.toFixed(1)+'%')+' ('+fmt(dv[devN[ctx.dataIndex]].impr)+' impressions)'}}}},
     scales:{x:{min:0,max:100,grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#7a8fa3',callback:function(v){return v+'%'}}},y:{grid:{display:false},ticks:{color:'#e0e6ed'}}}}});
+}
+/* Open / close the whole section. Closed by default; each browser remembers the last choice. */
+function mcToggle(open){
+  var s=document.getElementById('mc-section'),b=document.getElementById('mc-toggle');if(!s)return;
+  var o=open===undefined?s.classList.contains('mc-collapsed'):!!open;
+  s.classList.toggle('mc-collapsed',!o);
+  if(b){b.textContent=o?'Hide details':'Show details';b.setAttribute('aria-expanded',o?'true':'false');b.classList.toggle('active',o)}
+  try{localStorage.setItem('cbMcOpen',o?'1':'0')}catch(e){}
+  /* charts drawn while hidden have no size: resize them once visible */
+  if(o)[mcShareChartObj,mcLostChartObj,mcTrafficChartObj,mcResultsChartObj,mcDevChartObj].concat(mcSparkObjs).forEach(function(c){if(c&&c.resize)c.resize()});
 }
 function mcLostMode(mode){
   if(!mcLostChartObj)return;
@@ -893,6 +905,7 @@ function loadData(){
   });
 }
 
+mcToggle((function(){try{return localStorage.getItem('cbMcOpen')==='1'}catch(e){return false}})());
 loadData();
 </script>
 </body>

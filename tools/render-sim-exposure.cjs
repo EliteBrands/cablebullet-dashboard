@@ -297,6 +297,22 @@ const lines = (csv) => csv.trim().split(/\r?\n/);
     els.dateFrom.value = String(n - 4); els.dateTo.value = String(n - 2); ctx.applyFilter();
     assert.doesNotMatch(statOf(els, 'mc-traffic', 'Spend per day (latest week)'), /budget/);
   });
+  await check('section starts collapsed and the button opens and closes it', async () => {
+    const { ctx, els, charts } = await runPage(FIX);
+    assert.ok(els['mc-section'].classList.contains('mc-collapsed'), 'collapsed by default');
+    assert.equal(els['mc-toggle'].textContent, 'Show details');
+    assert.ok(charts.mcShareChart, 'charts are built while collapsed');
+    ctx.mcToggle();
+    assert.ok(!els['mc-section'].classList.contains('mc-collapsed'), 'open after one click');
+    assert.equal(els['mc-toggle'].textContent, 'Hide details');
+    assert.equal(els['mc-toggle'].getAttribute('aria-expanded'), 'true');
+    ctx.mcToggle();
+    assert.ok(els['mc-section'].classList.contains('mc-collapsed'), 'closed after a second click');
+  });
+  await check('the closed bar says when the section could not load', async () => {
+    const { els } = await runPage({ ...FIX, weekly: null });
+    assert.match(els['mc-head-share'].textContent, /not available right now/i);
+  });
   await check('section follows the last applied range when tabs arrive late', async () => {
     const { ctx, els } = await runPage(FIX);
     const n = ctx.allData.fullDates.length;
